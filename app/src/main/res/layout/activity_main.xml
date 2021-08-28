@@ -9,7 +9,7 @@
     <ImageView
         android:id="@+id/background"
         android:layout_width="0dp"
-        android:layout_height="275dp"
+        android:layout_height="0dp"
         android:scaleType="centerCrop"
         android:src="@drawable/background"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -46,101 +46,23 @@
         app:layout_constraintHorizontal_bias="0.499"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.29" />
+        app:layout_constraintVertical_bias="0.33" />
 
     <TextView
         android:id="@+id/tv_highScore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="25dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
         android:text="High Score : "
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.029" />
-
-    <ImageView
-        android:id="@+id/floor"
-        android:layout_width="136dp"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/background"
-        app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/floor" />
-
-    <ImageView
-        android:id="@+id/floor2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/floor"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/floor3"
-        app:layout_constraintTop_toBottomOf="@+id/background"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/floor" />
-
-    <ImageView
-        android:id="@+id/floor3"
-        android:layout_width="136dp"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/floor"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/floor4"
-        app:layout_constraintTop_toBottomOf="@+id/background"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/floor" />
-
-    <ImageView
-        android:id="@+id/floor4"
-        android:layout_width="136dp"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/floor"
-        app:layout_constraintHorizontal_bias="0.398"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/floor3"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/floor" />
-
-    <ImageView
-        android:id="@+id/floor5"
-        android:layout_width="136dp"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/floor"
-        app:layout_constraintHorizontal_bias="0.100"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/floor3"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/floor" />
-
-    <ImageView
-        android:id="@+id/floor16"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scaleType="fitEnd"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/floor5"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/floor3"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/floor1" />
+        app:layout_constraintVertical_bias="0.010" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
