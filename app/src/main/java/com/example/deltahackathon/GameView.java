@@ -1,7 +1,12 @@
 package com.example.deltahackathon;
 
+import static com.example.deltahackathon.Ninja.base;
+
+import android.content.Intent;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 public class GameView extends SurfaceView implements Runnable {
@@ -12,12 +17,19 @@ public class GameView extends SurfaceView implements Runnable {
     public static float screenRatioX, screenRatioY;
     private float screenX,screenY;
 
+    float circlex,circley,circleRadius;
+
     private BackGround backGround1,backGround2;
     private Ninja ninja;
 
     int ninjaRunFrame=1;
+    int ninjaJumpFrame=1;
+    int ninjaAttackFrame=1;
 
-    Paint paint;
+    float ninjaMaxHeight;
+    float ninjaVerticalSpeed;
+
+    Paint paint,paintCircle;
 
 
     public GameView(GameActivity activity, float screenX, float screenY) {
@@ -35,9 +47,16 @@ public class GameView extends SurfaceView implements Runnable {
 
         ninja=new Ninja(getResources());
 
+        ninjaMaxHeight=400*screenRatioY;
+        ninjaVerticalSpeed=12*screenRatioY;
+
+        circlex=screenX-(300*screenRatioX);
+        circley=screenY-(250*screenRatioY);
+        circleRadius=100;
 
         paint=new Paint();
-
+        paintCircle=new Paint();
+        paintCircle.setColor(Color.parseColor("#66000000"));
     }
 
     @Override
@@ -51,6 +70,12 @@ public class GameView extends SurfaceView implements Runnable {
 
         }
 
+    }
+
+
+    private void movement() {
+        backGround();
+        ninja();
     }
 
     private void sleep() {
@@ -67,18 +92,23 @@ public class GameView extends SurfaceView implements Runnable {
 
             canvas.drawBitmap(backGround1.background,backGround1.x,backGround1.y,paint);
             canvas.drawBitmap(backGround2.background,backGround2.x,backGround2.y,paint);
+            canvas.drawCircle(circlex,circley,circleRadius,paintCircle);
 
             if(ninja.ninjaRun){
                 canvas.drawBitmap(ninja.getNinjaRun(ninjaRunFrame),ninja.runx,ninja.runy,paint);
             }
+            else if(ninja.ninjaJump){
+                canvas.drawBitmap(ninja.getNinjaJump(ninjaJumpFrame),ninja.jumpx,ninja.jumpy,paint);
+            }
+            else if(ninja.ninjaSlide){
+                canvas.drawBitmap(ninja.getNinjaSlide(),ninja.slidex,ninja.slidey,paint);
+            }
+            else if(ninja.ninjaAttack){
+                canvas.drawBitmap(ninja.getNinjaAttack(ninjaAttackFrame),ninja.attackx,ninja.attacky,paint);
+            }
 
             getHolder().unlockCanvasAndPost(canvas);
         }
-    }
-
-    private void movement() {
-        backGround();
-        ninja();
     }
 
     private void backGround() {
@@ -95,12 +125,76 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     private void ninja() {
-        if(ninja.ninjaRun) {
+        if (ninja.ninjaRun) {
             if (ninjaRunFrame < 11) {
                 ninjaRunFrame++;
             } else {
                 ninjaRunFrame = 1;
             }
+        }
+        else if (ninja.ninjaJump) {
+            if (ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight+(400*screenRatioY)) {
+                ninja.jumpy -= ninjaVerticalSpeed;
+                ninjaJumpFrame=1;
+            }
+            else if
+            (ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight+(300*screenRatioY)) {
+                ninja.jumpy -= ninjaVerticalSpeed;
+                ninjaJumpFrame=2;
+            }
+            else if(ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight+(200*screenRatioY)) {
+                ninja.jumpy -= ninjaVerticalSpeed;
+                ninjaJumpFrame=3;
+            }
+            else if(ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight+(100*screenRatioY)) {
+                ninja.jumpy -= ninjaVerticalSpeed;
+                ninjaJumpFrame=4;
+            }
+            else if(ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight) {
+                ninja.jumpy -= ninjaVerticalSpeed;
+                ninjaJumpFrame=5;
+            }
+            else if (ninja.ninjaUpward && ninja.jumpy < ninjaMaxHeight) {
+                ninja.ninjaUpward = false;
+                ninja.ninjaDownward = true;
+            }
+            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight) {
+                ninja.jumpy += ninjaVerticalSpeed;
+            }
+            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight+(100*screenRatioY)) {
+                ninja.jumpy += ninjaVerticalSpeed;
+            }
+            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight+(200*screenRatioY)) {
+                ninja.jumpy += ninjaVerticalSpeed;
+                ninjaJumpFrame=8;
+            }
+            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight+(250*screenRatioY)) {
+                ninja.jumpy += ninjaVerticalSpeed;
+                ninjaJumpFrame=9;
+            }
+            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight+(300*screenRatioY)) {
+                ninja.jumpy += ninjaVerticalSpeed;
+                ninjaJumpFrame=10;
+            }
+            else {
+                ninja.jumpy = base - ninja.jumpHeight;
+                ninja.ninjaRun=true;
+                ninja.atBase=true;
+                ninja.ninjaJump = false;
+            }
+        }
+        else if(ninja.ninjaSlide){
+
+        }
+        else if(ninja.ninjaAttack){
+            if (ninjaAttackFrame < 11) {
+                ninjaAttackFrame++;
+            } else {
+                ninjaAttackFrame=1;
+                ninja.ninjaAttack=false;
+                ninja.ninjaRun=true;
+            }
+
         }
     }
 
@@ -117,6 +211,54 @@ public class GameView extends SurfaceView implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean value = super.onTouchEvent(event);
+
+        switch (event.getAction()){
+
+            case MotionEvent.ACTION_DOWN: {
+                float downx=event.getX();
+                float downy=event.getY();
+
+                if(ninja.atBase && !ninja.ninjaSlide && !ninja.ninjaAttack) {
+                    if(downx>circlex-circleRadius && downx<circlex+circleRadius && downy>circley-circleRadius && downy<circley+circleRadius){
+                        ninja.ninjaRun=false;
+                        ninja.ninjaAttack=true;
+                    }
+                    else if (downx > (screenX / 2)) {
+                        ninja.atBase=false;
+                        ninja.ninjaRun=false;
+                        ninja.ninjaJump = true;
+                        ninja.ninjaUpward= true;
+                        ninja.ninjaDownward = false;
+                    }
+                }
+
+                return true;
+            }
+
+            case MotionEvent.ACTION_MOVE:{
+                float downx=event.getX();
+                if(ninja.atBase && !ninja.ninjaAttack && downx < (screenX / 2)){
+                    ninja.ninjaRun=false;
+                    ninja.ninjaSlide=true;
+                }
+                return value;
+            }
+
+            case MotionEvent.ACTION_UP:{
+                float downx=event.getX();
+                if(ninja.atBase && downx < (screenX / 2)){
+                    ninja.ninjaRun=true;
+                    ninja.ninjaSlide=false;
+                }
+                return value;
+            }
+        }
+        return value;
     }
 
 }

@@ -142,6 +142,16 @@ public class Ninja {
         attackHeight*=screenRatioY;
 
         ninjaAttack1=Bitmap.createScaledBitmap(ninjaAttack1,(int)attackWidth,(int)attackHeight,false);
+        ninjaAttack2=Bitmap.createScaledBitmap(ninjaAttack2,(int)attackWidth,(int)attackHeight,false);
+        ninjaAttack3=Bitmap.createScaledBitmap(ninjaAttack3,(int)attackWidth,(int)attackHeight,false);
+        ninjaAttack4=Bitmap.createScaledBitmap(ninjaAttack4,(int)attackWidth,(int)attackHeight,false);
+        ninjaAttack5=Bitmap.createScaledBitmap(ninjaAttack5,(int)attackWidth,(int)attackHeight,false);
+        ninjaAttack6=Bitmap.createScaledBitmap(ninjaAttack6,(int)attackWidth,(int)attackHeight,false);
+        ninjaAttack7=Bitmap.createScaledBitmap(ninjaAttack7,(int)attackWidth,(int)attackHeight,false);
+        ninjaAttack8=Bitmap.createScaledBitmap(ninjaAttack8,(int)attackWidth,(int)attackHeight,false);
+        ninjaAttack9=Bitmap.createScaledBitmap(ninjaAttack9,(int)attackWidth,(int)attackHeight,false);
+        ninjaAttack10=Bitmap.createScaledBitmap(ninjaAttack10,(int)attackWidth,(int)attackHeight,false);
+
 
         base=(1000)*screenRatioY;
         attacky=base-attackHeight;
