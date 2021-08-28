@@ -118,7 +118,7 @@ public class GameView extends SurfaceView implements Runnable {
             else{
                 enemyBuffer++;
             }
-            if(enemyBuffer2>320){
+            if(enemyBuffer2>400){
 
             }
             else{
@@ -130,13 +130,13 @@ public class GameView extends SurfaceView implements Runnable {
 
     private void enemy() {
         if(enemyAbsent) {
-            enemy = random.nextInt(3)+1;
-            if(enemy==1 || enemy==2){
+            enemy = random.nextInt(2)+1;
+            if(enemy==1){
                 fsalAbsent=false;
                 fsal.x=screenX;
                 enemyAbsent=false;
             }
-            if(enemy==3){
+            if(enemy==2){
                 flyAbsent=false;
                 fly.x=screenX;
                 enemyAbsent=false;
@@ -147,7 +147,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     private void enemyMovement() {
         if(!enemyAbsent) {
-            if ((enemy == 1 || enemy==2)&& !fsalAbsent) {
+            if (enemy == 1 && !fsalAbsent) {
                 fsal.x -= 10 * screenRatioX;
                 if (fsalFrame < 11) {
                     fsalFrame++;
@@ -160,7 +160,7 @@ public class GameView extends SurfaceView implements Runnable {
                 }
 
             }
-            else if (enemy == 3 && !flyAbsent) {
+            else if (enemy == 2 && !flyAbsent) {
                 fly.x -= 10 * screenRatioX;
                 if (flyFrame < 7) {
                     flyFrame++;
@@ -179,7 +179,7 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     private void collisionDetection() {
-        if(!enemyAbsent && enemyBuffer2>320){
+        if(!enemyAbsent && enemyBuffer2>400){
             if(ninja.ninjaRun){
                 if(!fsalAbsent){
                     if(RectF.intersects(ninja.getRunCollisionShape(),fsal.getFsalShape())){
@@ -219,12 +219,14 @@ public class GameView extends SurfaceView implements Runnable {
             else if(ninja.ninjaAttack){
                 if(!fsalAbsent){
                     if(RectF.intersects(ninja.getAttackCollisionShape(),fsal.getFsalShape())){
+                        kills++;
                         fsalAbsent=true;
                         enemyAbsent=true;
                     }
                 }
                 else if(!flyAbsent){
                     if(RectF.intersects(ninja.getAttackCollisionShape(),fly.getFlyShape())){
+                        kills++;
                         flyAbsent=true;
                         enemyAbsent=true;
                     }
@@ -244,6 +246,7 @@ public class GameView extends SurfaceView implements Runnable {
     private void draw() {
         if(getHolder().getSurface().isValid()){
             Canvas canvas=getHolder().lockCanvas();
+
             canvas.drawBitmap(backGround1.background,backGround1.x,backGround1.y,paint);
             canvas.drawBitmap(backGround2.background,backGround2.x,backGround2.y,paint);
             canvas.drawCircle(circlex,circley,circleRadius,paintCircle);
@@ -278,10 +281,10 @@ public class GameView extends SurfaceView implements Runnable {
                     editor.putInt("highScore",score);
                     editor.apply();
                 }
-                return;
             }
             else{
                 canvas.drawText("SCORE : "+score,screenX-400,150,paintOver);
+                canvas.drawText("KILLS : "+kills,screenX-400,250,paintOver);
             }
 
             getHolder().unlockCanvasAndPost(canvas);
