@@ -47,9 +47,18 @@ public class GameView extends SurfaceView implements Runnable {
 
         movement();
         draw();
+        sleep();
 
         }
 
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void draw() {
@@ -60,7 +69,7 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawBitmap(backGround2.background,backGround2.x,backGround2.y,paint);
 
             if(ninja.ninjaRun){
-                canvas.drawBitmap(ninja.getNinjaRun(ninjaRunFrame),ninja.x,ninja.y,paint);
+                canvas.drawBitmap(ninja.getNinjaRun(ninjaRunFrame),ninja.runx,ninja.runy,paint);
             }
 
             getHolder().unlockCanvasAndPost(canvas);
