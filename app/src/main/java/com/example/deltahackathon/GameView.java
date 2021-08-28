@@ -2,10 +2,13 @@ package com.example.deltahackathon;
 
 import static com.example.deltahackathon.Ninja.base;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
@@ -32,19 +35,27 @@ public class GameView extends SurfaceView implements Runnable {
     int ninjaAttackFrameBuffer=1;
 
     int fsalFrame=1,flyFrame=1;
-    int enemy;
+    int enemy, enemyBuffer=0,enemyBuffer2=0;
+    int score=0,kills=0;
     Boolean enemyAbsent=true,fsalAbsent=true,flyAbsent=true;
 
     float ninjaMaxHeight;
     float ninjaVerticalSpeed;
 
-    Paint paint,paintCircle;
+    Paint paint,paintCircle,paintOver;
 
     Random random;
 
+    Boolean gameOver=false;
+    private SharedPreferences prefs;
+
+    private GameActivity activity;
 
     public GameView(GameActivity activity, float screenX, float screenY) {
         super(activity);
+
+        this.activity=activity;
+        prefs=activity.getSharedPreferences("highScorePrefsKey", Context.MODE_PRIVATE);
 
         this.screenX=screenX;
         this.screenY=screenY;
@@ -68,6 +79,10 @@ public class GameView extends SurfaceView implements Runnable {
         paint=new Paint();
         paintCircle=new Paint();
         paintCircle.setColor(Color.parseColor("#66000000"));
+        paintOver=new Paint();
+        paintOver.setColor(Color.BLACK);
+        paintOver.setTextAlign(Paint.Align.CENTER);
+        paintOver.setTextSize(100);
 
         random=new Random();
 
@@ -82,6 +97,7 @@ public class GameView extends SurfaceView implements Runnable {
         while(canDraw){
 
         movement();
+        collisionDetection();
         draw();
         sleep();
 
@@ -91,22 +107,36 @@ public class GameView extends SurfaceView implements Runnable {
 
 
     private void movement() {
-        backGround();
-        ninja();
-        enemy();
-        enemyMovement();
+        if(!gameOver) {
+            score++;
+            backGround();
+            ninja();
+            if(enemyBuffer>150) {
+                enemy();
+                enemyMovement();
+            }
+            else{
+                enemyBuffer++;
+            }
+            if(enemyBuffer2>320){
+
+            }
+            else{
+                enemyBuffer2++;
+            }
+        }
     }
 
 
     private void enemy() {
         if(enemyAbsent) {
-            enemy = random.nextInt(2)+1;
-            if(enemy==1){
+            enemy = random.nextInt(3)+1;
+            if(enemy==1 || enemy==2){
                 fsalAbsent=false;
                 fsal.x=screenX;
                 enemyAbsent=false;
             }
-            if(enemy==2){
+            if(enemy==3){
                 flyAbsent=false;
                 fly.x=screenX;
                 enemyAbsent=false;
@@ -117,7 +147,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     private void enemyMovement() {
         if(!enemyAbsent) {
-            if (enemy == 1 && !fsalAbsent) {
+            if ((enemy == 1 || enemy==2)&& !fsalAbsent) {
                 fsal.x -= 10 * screenRatioX;
                 if (fsalFrame < 11) {
                     fsalFrame++;
@@ -130,7 +160,7 @@ public class GameView extends SurfaceView implements Runnable {
                 }
 
             }
-            else if (enemy == 2 && !flyAbsent) {
+            else if (enemy == 3 && !flyAbsent) {
                 fly.x -= 10 * screenRatioX;
                 if (flyFrame < 7) {
                     flyFrame++;
@@ -148,6 +178,61 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    private void collisionDetection() {
+        if(!enemyAbsent && enemyBuffer2>320){
+            if(ninja.ninjaRun){
+                if(!fsalAbsent){
+                    if(RectF.intersects(ninja.getRunCollisionShape(),fsal.getFsalShape())){
+                        gameOver=true;
+                    }
+                }
+                else if(!flyAbsent){
+                    if(RectF.intersects(ninja.getRunCollisionShape(),fly.getFlyShape())){
+                        gameOver=true;
+                    }
+                }
+            }
+            else if(ninja.ninjaJump){
+                if(!fsalAbsent){
+                    if(RectF.intersects(ninja.getJumpCollisionShape(),fsal.getFsalShape())){
+                        gameOver=true;
+                    }
+                }
+                else if(!flyAbsent){
+                    if(RectF.intersects(ninja.getJumpCollisionShape(),fly.getFlyShape())){
+                        gameOver=true;
+                    }
+                }
+            }
+            else if(ninja.ninjaSlide){
+                if(!fsalAbsent){
+                    if(RectF.intersects(ninja.getSlideCollisionShape(),fsal.getFsalShape())){
+                        gameOver=true;
+                    }
+                }
+                else if(!flyAbsent){
+                    if(RectF.intersects(ninja.getSlideCollisionShape(),fly.getFlyShape())){
+                        gameOver=true;
+                    }
+                }
+            }
+            else if(ninja.ninjaAttack){
+                if(!fsalAbsent){
+                    if(RectF.intersects(ninja.getAttackCollisionShape(),fsal.getFsalShape())){
+                        fsalAbsent=true;
+                        enemyAbsent=true;
+                    }
+                }
+                else if(!flyAbsent){
+                    if(RectF.intersects(ninja.getAttackCollisionShape(),fly.getFlyShape())){
+                        flyAbsent=true;
+                        enemyAbsent=true;
+                    }
+                }
+            }
+        }
+    }
+
     private void sleep() {
         try {
             Thread.sleep(10);
@@ -159,7 +244,6 @@ public class GameView extends SurfaceView implements Runnable {
     private void draw() {
         if(getHolder().getSurface().isValid()){
             Canvas canvas=getHolder().lockCanvas();
-
             canvas.drawBitmap(backGround1.background,backGround1.x,backGround1.y,paint);
             canvas.drawBitmap(backGround2.background,backGround2.x,backGround2.y,paint);
             canvas.drawCircle(circlex,circley,circleRadius,paintCircle);
@@ -186,126 +270,117 @@ public class GameView extends SurfaceView implements Runnable {
                 }
             }
 
+            if(gameOver){
+                canvas.drawText("GAMEOVER",screenX/2,100,paintOver);
+                canvas.drawText("SCORE : "+score,screenX/2,200,paintOver);
+                if(prefs.getInt("highScore",0)<score){
+                    SharedPreferences.Editor editor=prefs.edit();
+                    editor.putInt("highScore",score);
+                    editor.apply();
+                }
+                return;
+            }
+            else{
+                canvas.drawText("SCORE : "+score,screenX-400,150,paintOver);
+            }
+
             getHolder().unlockCanvasAndPost(canvas);
         }
     }
 
     private void backGround() {
-        backGround1.x-=10*screenRatioX;
-        backGround2.x-=10*screenRatioX;
+            backGround1.x -= 10 * screenRatioX;
+            backGround2.x -= 10 * screenRatioX;
 
-        if(backGround1.x+backGround1.background.getWidth()<0){
-            backGround1.x=screenX;
-        }
+            if (backGround1.x + backGround1.background.getWidth() < 0) {
+                backGround1.x = screenX;
+            }
 
-        if(backGround2.x+backGround2.background.getWidth()<0){
-            backGround2.x=screenX;
-        }
+            if (backGround2.x + backGround2.background.getWidth() < 0) {
+                backGround2.x = screenX;
+            }
     }
 
     private void ninja() {
-        if (ninja.ninjaRun) {
-            if (ninjaRunFrame < 11) {
-                ninjaRunFrame++;
-            } else {
-                ninjaRunFrame = 1;
-            }
-        }
-        else if (ninja.ninjaJump) {
-            if (ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight+(400*screenRatioY)) {
-                ninja.jumpy -= ninjaVerticalSpeed;
-                ninjaJumpFrame=1;
-            }
-            else if
-            (ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight+(300*screenRatioY)) {
-                ninja.jumpy -= ninjaVerticalSpeed;
-                ninjaJumpFrame=2;
-            }
-            else if(ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight+(200*screenRatioY)) {
-                ninja.jumpy -= ninjaVerticalSpeed;
-                ninjaJumpFrame=3;
-            }
-            else if(ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight+(100*screenRatioY)) {
-                ninja.jumpy -= ninjaVerticalSpeed;
-                ninjaJumpFrame=4;
-            }
-            else if(ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight) {
-                ninja.jumpy -= ninjaVerticalSpeed;
-                ninjaJumpFrame=5;
-            }
-            else if (ninja.ninjaUpward && ninja.jumpy < ninjaMaxHeight) {
-                ninja.ninjaUpward = false;
-                ninja.ninjaDownward = true;
-            }
-            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight) {
-                ninja.jumpy += ninjaVerticalSpeed;
-            }
-            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight+(100*screenRatioY)) {
-                ninja.jumpy += ninjaVerticalSpeed;
-            }
-            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight+(200*screenRatioY)) {
-                ninja.jumpy += ninjaVerticalSpeed;
-                ninjaJumpFrame=8;
-            }
-            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight+(250*screenRatioY)) {
-                ninja.jumpy += ninjaVerticalSpeed;
-                ninjaJumpFrame=9;
-            }
-            else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight+(300*screenRatioY)) {
-                ninja.jumpy += ninjaVerticalSpeed;
-                ninjaJumpFrame=10;
-            }
-            else {
-                ninja.jumpy = base - ninja.jumpHeight;
-                ninja.ninjaRun=true;
-                ninja.atBase=true;
-                ninja.ninjaJump = false;
-            }
-        }
-        else if(ninja.ninjaSlide){
+            if (ninja.ninjaRun) {
+                if (ninjaRunFrame < 11) {
+                    ninjaRunFrame++;
+                } else {
+                    ninjaRunFrame = 1;
+                }
+            } else if (ninja.ninjaJump) {
+                if (ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight + (400 * screenRatioY)) {
+                    ninja.jumpy -= ninjaVerticalSpeed;
+                    ninjaJumpFrame = 1;
+                } else if
+                (ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight + (300 * screenRatioY)) {
+                    ninja.jumpy -= ninjaVerticalSpeed;
+                    ninjaJumpFrame = 2;
+                } else if (ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight + (200 * screenRatioY)) {
+                    ninja.jumpy -= ninjaVerticalSpeed;
+                    ninjaJumpFrame = 3;
+                } else if (ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight + (100 * screenRatioY)) {
+                    ninja.jumpy -= ninjaVerticalSpeed;
+                    ninjaJumpFrame = 4;
+                } else if (ninja.ninjaUpward && ninja.jumpy > ninjaMaxHeight) {
+                    ninja.jumpy -= ninjaVerticalSpeed;
+                    ninjaJumpFrame = 5;
+                } else if (ninja.ninjaUpward && ninja.jumpy < ninjaMaxHeight) {
+                    ninja.ninjaUpward = false;
+                    ninja.ninjaDownward = true;
+                } else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight) {
+                    ninja.jumpy += ninjaVerticalSpeed;
+                } else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight + (100 * screenRatioY)) {
+                    ninja.jumpy += ninjaVerticalSpeed;
+                } else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight + (200 * screenRatioY)) {
+                    ninja.jumpy += ninjaVerticalSpeed;
+                    ninjaJumpFrame = 8;
+                } else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight + (250 * screenRatioY)) {
+                    ninja.jumpy += ninjaVerticalSpeed;
+                    ninjaJumpFrame = 9;
+                } else if (ninja.ninjaDownward && ninja.jumpy < ninjaMaxHeight + (300 * screenRatioY)) {
+                    ninja.jumpy += ninjaVerticalSpeed;
+                    ninjaJumpFrame = 10;
+                } else {
+                    ninja.jumpy = base - ninja.jumpHeight;
+                    ninja.ninjaRun = true;
+                    ninja.atBase = true;
+                    ninja.ninjaJump = false;
+                }
+            } else if (ninja.ninjaSlide) {
 
-        }
-        else if(ninja.ninjaAttack){
-            if (ninjaAttackFrame < 11 && ninjaAttackFrameBuffer<20) {
-                ninjaAttackFrameBuffer++;
-                if(ninjaAttackFrameBuffer<2){
-                    ninjaAttackFrame=1;
+            } else if (ninja.ninjaAttack) {
+                if (ninjaAttackFrame < 11 && ninjaAttackFrameBuffer < 20) {
+                    ninjaAttackFrameBuffer++;
+                    if (ninjaAttackFrameBuffer < 2) {
+                        ninjaAttackFrame = 1;
+                    } else if (ninjaAttackFrameBuffer < 4) {
+                        ninjaAttackFrame = 2;
+                    } else if (ninjaAttackFrameBuffer < 6) {
+                        ninjaAttackFrame = 3;
+                    } else if (ninjaAttackFrameBuffer < 8) {
+                        ninjaAttackFrame = 4;
+                    } else if (ninjaAttackFrameBuffer < 10) {
+                        ninjaAttackFrame = 5;
+                    } else if (ninjaAttackFrameBuffer < 12) {
+                        ninjaAttackFrame = 6;
+                    } else if (ninjaAttackFrameBuffer < 14) {
+                        ninjaAttackFrame = 7;
+                    } else if (ninjaAttackFrameBuffer < 16) {
+                        ninjaAttackFrame = 8;
+                    } else if (ninjaAttackFrameBuffer < 18) {
+                        ninjaAttackFrame = 9;
+                    } else if (ninjaAttackFrameBuffer < 20) {
+                        ninjaAttackFrame = 10;
+                    }
+                } else {
+                    ninjaAttackFrame = 1;
+                    ninjaAttackFrameBuffer = 1;
+                    ninja.ninjaAttack = false;
+                    ninja.ninjaRun = true;
                 }
-                else if(ninjaAttackFrameBuffer<4){
-                    ninjaAttackFrame=2;
-                }
-                else if(ninjaAttackFrameBuffer<6){
-                    ninjaAttackFrame=3;
-                }
-                else if(ninjaAttackFrameBuffer<8){
-                    ninjaAttackFrame=4;
-                }
-                else if(ninjaAttackFrameBuffer<10){
-                    ninjaAttackFrame=5;
-                }
-                else if(ninjaAttackFrameBuffer<12){
-                    ninjaAttackFrame=6;
-                }
-                else if(ninjaAttackFrameBuffer<14){
-                    ninjaAttackFrame=7;
-                }
-                else if(ninjaAttackFrameBuffer<16){
-                    ninjaAttackFrame=8;
-                }
-                else if(ninjaAttackFrameBuffer<18){
-                    ninjaAttackFrame=9;
-                }
-                else if(ninjaAttackFrameBuffer<20){
-                    ninjaAttackFrame=10;
-                }
-            } else {
-                ninjaAttackFrame=1;
-                ninjaAttackFrameBuffer=1;
-                ninja.ninjaAttack=false;
-                ninja.ninjaRun=true;
-            }
 
-        }
+            }
     }
 
     public void resume(){
@@ -333,7 +408,7 @@ public class GameView extends SurfaceView implements Runnable {
                 float downx=event.getX();
                 float downy=event.getY();
 
-                if(ninja.atBase && !ninja.ninjaSlide && !ninja.ninjaAttack) {
+                if(!gameOver && ninja.atBase && !ninja.ninjaSlide && !ninja.ninjaAttack) {
                     if(downx>circlex-circleRadius && downx<circlex+circleRadius && downy>circley-circleRadius && downy<circley+circleRadius){
                         ninja.ninjaRun=false;
                         ninja.ninjaAttack=true;
@@ -352,7 +427,7 @@ public class GameView extends SurfaceView implements Runnable {
 
             case MotionEvent.ACTION_MOVE:{
                 float downx=event.getX();
-                if(ninja.atBase && !ninja.ninjaAttack && downx < (screenX / 2)){
+                if(!gameOver && ninja.atBase && !ninja.ninjaAttack && downx < (screenX / 2)){
                     ninja.ninjaRun=false;
                     ninja.ninjaSlide=true;
                 }

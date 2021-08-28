@@ -88,7 +88,7 @@ public class Fsal {
     }
 
     RectF getFsalShape(){
-        return new RectF(x,y,x+width,y+height);
+        return new RectF(+30,y+30,x+width-30,y+height-30);
     }
 
 }

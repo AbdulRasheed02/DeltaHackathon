@@ -264,19 +264,19 @@ public class Ninja {
 
 
     RectF getRunCollisionShape(){
-        return new RectF(runx,runy,runx+runWidth,runy+runHeight);
+        return new RectF(runx+20,runy+20,runx+runWidth-20,runy+runHeight-20);
     }
 
     RectF getAttackCollisionShape(){
-        return new RectF(attackx,attacky,attackx+attackWidth,attacky+attackHeight);
+        return new RectF(attackx+20,attacky+20,attackx+attackWidth-20,attacky+attackHeight-20);
     }
 
     RectF getJumpCollisionShape(){
-        return new RectF(jumpx,jumpy,jumpx+jumpWidth,jumpy+jumpHeight);
+        return new RectF(jumpx+20,jumpy+20,jumpx+jumpWidth-20,jumpy+jumpHeight-20);
     }
 
     RectF getSlideCollisionShape(){
-        return new RectF(slidex,slidey,slidex+slideWidth,slidey+slideHeight);
+        return new RectF(slidex+20,slidey+20,slidex+slideWidth-20,slidey+slideHeight-20);
     }
 
 }

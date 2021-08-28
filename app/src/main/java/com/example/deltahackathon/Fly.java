@@ -43,7 +43,7 @@ public class Fly {
         fly7 = Bitmap.createScaledBitmap(fly7, (int) width, (int) height, false);
 
         base = (1000) * screenRatioY;
-        y = runy+(20*screenRatioY);
+        y = runy-(80*screenRatioY);
         x = screenX;
     }
 
@@ -72,7 +72,7 @@ public class Fly {
     }
 
     RectF getFlyShape(){
-        return new RectF(x,y,x+width,y+height);
+        return new RectF(x+20,y+40,x+width-20,y+height-40);
     }
 }
 
