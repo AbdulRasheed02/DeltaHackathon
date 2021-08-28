@@ -10,7 +10,8 @@ import android.graphics.RectF;
 
 public class Ninja {
 
-    float runx,runy,attackx,attacky,jumpx,jumpy,slidex,slidey;
+    public static float runy;
+    float runx,attackx,attacky,jumpx,jumpy,slidex,slidey;
     float runWidth,runHeight,jumpWidth,jumpHeight,attackWidth,attackHeight,slideWidth,slideHeight;
     public static float base;
     Bitmap ninjaRun1,ninjaRun2,ninjaRun3,ninjaRun4,ninjaRun5,ninjaRun6,ninjaRun7,ninjaRun8,ninjaRun9,ninjaRun10;

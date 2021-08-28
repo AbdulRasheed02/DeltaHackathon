@@ -9,6 +9,8 @@ import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 
+import java.util.Random;
+
 public class GameView extends SurfaceView implements Runnable {
 
     Thread thread;
@@ -21,15 +23,24 @@ public class GameView extends SurfaceView implements Runnable {
 
     private BackGround backGround1,backGround2;
     private Ninja ninja;
+    private Fsal fsal;
+    private Fly fly;
 
     int ninjaRunFrame=1;
     int ninjaJumpFrame=1;
     int ninjaAttackFrame=1;
+    int ninjaAttackFrameBuffer=1;
+
+    int fsalFrame=1,flyFrame=1;
+    int enemy;
+    Boolean enemyAbsent=true,fsalAbsent=true,flyAbsent=true;
 
     float ninjaMaxHeight;
     float ninjaVerticalSpeed;
 
     Paint paint,paintCircle;
+
+    Random random;
 
 
     public GameView(GameActivity activity, float screenX, float screenY) {
@@ -47,7 +58,7 @@ public class GameView extends SurfaceView implements Runnable {
 
         ninja=new Ninja(getResources());
 
-        ninjaMaxHeight=400*screenRatioY;
+        ninjaMaxHeight=300*screenRatioY;
         ninjaVerticalSpeed=12*screenRatioY;
 
         circlex=screenX-(300*screenRatioX);
@@ -57,6 +68,12 @@ public class GameView extends SurfaceView implements Runnable {
         paint=new Paint();
         paintCircle=new Paint();
         paintCircle.setColor(Color.parseColor("#66000000"));
+
+        random=new Random();
+
+        fsal=new Fsal(screenX,screenY,getResources());
+        fly=new Fly(screenX,screenY,getResources());
+
     }
 
     @Override
@@ -76,6 +93,59 @@ public class GameView extends SurfaceView implements Runnable {
     private void movement() {
         backGround();
         ninja();
+        enemy();
+        enemyMovement();
+    }
+
+
+    private void enemy() {
+        if(enemyAbsent) {
+            enemy = random.nextInt(2)+1;
+            if(enemy==1){
+                fsalAbsent=false;
+                fsal.x=screenX;
+                enemyAbsent=false;
+            }
+            if(enemy==2){
+                flyAbsent=false;
+                fly.x=screenX;
+                enemyAbsent=false;
+            }
+        }
+
+    }
+
+    private void enemyMovement() {
+        if(!enemyAbsent) {
+            if (enemy == 1 && !fsalAbsent) {
+                fsal.x -= 10 * screenRatioX;
+                if (fsalFrame < 11) {
+                    fsalFrame++;
+                } else {
+                    fsalFrame = 1;
+                }
+                if (fsal.x+fsal.fsal1.getWidth()<0){
+                    fsalAbsent=true;
+                    enemyAbsent=true;
+                }
+
+            }
+            else if (enemy == 2 && !flyAbsent) {
+                fly.x -= 10 * screenRatioX;
+                if (flyFrame < 7) {
+                    flyFrame++;
+                } else {
+                    flyFrame = 1;
+                }
+
+                if (fly.x+fly.fly1.getWidth()<0){
+                    fsalAbsent=true;
+                    enemyAbsent=true;
+                }
+
+            }
+
+        }
     }
 
     private void sleep() {
@@ -105,6 +175,15 @@ public class GameView extends SurfaceView implements Runnable {
             }
             else if(ninja.ninjaAttack){
                 canvas.drawBitmap(ninja.getNinjaAttack(ninjaAttackFrame),ninja.attackx,ninja.attacky,paint);
+            }
+
+            if(!enemyAbsent){
+                if(!fsalAbsent){
+                    canvas.drawBitmap(fsal.getFsal(fsalFrame),fsal.x,fsal.y,paint);
+                }
+                else if(!flyAbsent){
+                    canvas.drawBitmap(fly.getFly(flyFrame),fly.x,fly.y,paint);
+                }
             }
 
             getHolder().unlockCanvasAndPost(canvas);
@@ -187,10 +266,41 @@ public class GameView extends SurfaceView implements Runnable {
 
         }
         else if(ninja.ninjaAttack){
-            if (ninjaAttackFrame < 11) {
-                ninjaAttackFrame++;
+            if (ninjaAttackFrame < 11 && ninjaAttackFrameBuffer<20) {
+                ninjaAttackFrameBuffer++;
+                if(ninjaAttackFrameBuffer<2){
+                    ninjaAttackFrame=1;
+                }
+                else if(ninjaAttackFrameBuffer<4){
+                    ninjaAttackFrame=2;
+                }
+                else if(ninjaAttackFrameBuffer<6){
+                    ninjaAttackFrame=3;
+                }
+                else if(ninjaAttackFrameBuffer<8){
+                    ninjaAttackFrame=4;
+                }
+                else if(ninjaAttackFrameBuffer<10){
+                    ninjaAttackFrame=5;
+                }
+                else if(ninjaAttackFrameBuffer<12){
+                    ninjaAttackFrame=6;
+                }
+                else if(ninjaAttackFrameBuffer<14){
+                    ninjaAttackFrame=7;
+                }
+                else if(ninjaAttackFrameBuffer<16){
+                    ninjaAttackFrame=8;
+                }
+                else if(ninjaAttackFrameBuffer<18){
+                    ninjaAttackFrame=9;
+                }
+                else if(ninjaAttackFrameBuffer<20){
+                    ninjaAttackFrame=10;
+                }
             } else {
                 ninjaAttackFrame=1;
+                ninjaAttackFrameBuffer=1;
                 ninja.ninjaAttack=false;
                 ninja.ninjaRun=true;
             }
