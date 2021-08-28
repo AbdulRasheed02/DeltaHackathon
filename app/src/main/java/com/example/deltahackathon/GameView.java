@@ -58,7 +58,7 @@ public class GameView extends SurfaceView implements Runnable {
 
         ninja=new Ninja(getResources());
 
-        ninjaMaxHeight=300*screenRatioY;
+        ninjaMaxHeight=250*screenRatioY;
         ninjaVerticalSpeed=12*screenRatioY;
 
         circlex=screenX-(300*screenRatioX);
